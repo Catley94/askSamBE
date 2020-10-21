@@ -52,6 +52,16 @@ app.get("/", function(req, res) {
   res.send("GET: You have reached the home page")
 })
 
+app.get('/sortedlist', function(req, res) {
+  Question.find({answered: false}).sort([['questionID', 1]]).exec(function(err, sortedList) {
+    if(err) {
+      console.log(err);
+    } else {
+      res.send(sortedList) 
+    }
+    });
+})
+
 router.route("/submitquestion").post(function(req, res) {
   console.log("POST received from: ", req.url)
   res.send("Post Received")
