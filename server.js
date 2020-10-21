@@ -3,7 +3,6 @@ const app = express();
 const port = 4000;
 const router = express.Router();
 const mongoose = require("mongoose");
-const questions = require("./model");
 const uri = "mongodb://localhost:27017/asksamdb";
 let sessionCount = 0;
 // let questionCount = 0;
