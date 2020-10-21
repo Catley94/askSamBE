@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const questions = require("./model");
 const uri = "mongodb://localhost:27017/asksamdb";
 let sessionCount = 0;
+// let questionCount = 0;
 
 mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true });
 
@@ -47,65 +48,54 @@ connection.once("open", function() {
 app.use("/", router);
 
 
-router.route("/").get(function(req, res) {
+app.get("/", function(req, res) {
   console.log("GET: \"/\"")
-  sessionCount++;
+  res.send("GET: You have reached the home page")
 })
 
 router.route("/submitquestion").post(function(req, res) {
   console.log("POST received from: ", req.url)
   res.send("Post Received")
-  Question.count({}, function(response) {
-    console.log("Document count: ", response)
-    // console.log(response)
-  })
-  const question = new Question({
-    sessionID: sessionCount,
-    questionID: 0,
-    question: req.query.question,
-    answered: false,
-    answer: ''
-  })
-  question.save()
-  .then(function(response) {
-    console.log("saved")
-    console.log(response);
-  })
-  .catch(function(err) {
-    console.log("error");
-    console.log(err);
-  })
-  // Question.create({
-  //   sessionID: sessionCount,
-  //   questionID: 0,
-  //   question: req.query.question,
-  //   answered: false,
-  //   answer: ''
-  // }, function(response) {
-  //   console.log("success!");
-  //   console.log(response);
+  // Question.countDocuments({}, function(response) {
+  //   console.log("Document count: ", response)
   // })
+  Question.estimatedDocumentCount()
+  .then(function(questionCount) {
+    console.log("Document count is: ", questionCount)
+    Question.create({
+      sessionID: sessionCount,
+      questionID: questionCount,
+      question: req.query.question,
+      answered: false,
+      answer: ''
+    }, function(err, response) {
+      console.log("Created and saved");
+      console.log(response)
+    })
+  })
 
   console.log(req.query.question)
-    // questions.insertOne(data, function(err, result) {
-    //     if (err) {
-    //       console.log(err)
-    //     } else {
-    //       console.log(result);
-    //     }
-    //   });
+    sessionCount++;
 });
 
 app.delete('/cleardatabase', function(req, res) {
   console.log("Delete request received")
   Question.deleteMany({
     //parameters
-  }, function() {
-    console.log('Deleted all in database')
-    console.log("Database contents")
-    Question.find({}, function(response) {
-      console.log("Database contents: ")
-      console.log(response)
+  }, function(err, response) {
+    if(err) {
+      console.log("Error deleting all questions in database!")
+    } else {
+      console.log('Deleted all in database');
+      console.log("Database contents");
+    }
+    Question.estimatedDocumentCount()
+    .then(function(questionCount) {
+      console.log("Question count: ", questionCount);
+    })
+    .catch(function(err) {
+      console.log("Error!");
+      console.log(err);
     })
   })
 }) 
