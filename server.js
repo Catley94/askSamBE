@@ -52,7 +52,7 @@ app.get("/", function(req, res) {
   res.send("GET: You have reached the home page")
 })
 
-app.get('/sortedlist', function(req, res) {
+app.get('/needAnswers', function(req, res) {
   Question.find({answered: false}).sort([['questionID', 1]]).exec(function(err, sortedList) {
     if(err) {
       console.log(err);
@@ -60,6 +60,10 @@ app.get('/sortedlist', function(req, res) {
       res.send(sortedList) 
     }
     });
+})
+
+app.post('/answered', function(req, res) {
+  console.log("Answered question: ", req.query.question);
 })
 
 router.route("/submitquestion").post(function(req, res) {
