@@ -52,7 +52,7 @@ app.get("/", function(req, res) {
   res.send("GET: You have reached the home page")
 })
 
-app.get('/needAnswers', function(req, res) {
+app.get('/needanswers', function(req, res) {
   Question.find({answered: false}).sort([['questionID', 1]]).exec(function(err, sortedList) {
     if(err) {
       console.log(err);
@@ -62,8 +62,30 @@ app.get('/needAnswers', function(req, res) {
     });
 })
 
+
 app.post('/answered', function(req, res) {
-  console.log("Answered question: ", req.query.question);
+  console.log("Question: ", req.query)
+  console.log("Answer: ", req.query.answer);
+  Question.find({questionID: req.query.questionID}, function(err, response) {
+    if(err) {
+      console.log("error finding in db");
+      console.log(err)
+    } else {
+      console.log("found!")
+      console.log(response)
+    }
+  })
+
+  Question.update({questionID: req.query.questionID}, {answer: req.query.answer, answered: true}, function(err, response) {
+    if(err) {
+      console.log("Error updating");
+      console.log(err);
+    } else {
+      console.log("Updated!");
+      console.log(response);
+    }
+  })
+  // console.log(req);
 })
 
 router.route("/submitquestion").post(function(req, res) {
