@@ -24,8 +24,19 @@ const options = {
     headers: {'Access-Control-Allow-Origin': '*'}
 }
 axios.defaults.baseURL = 'http://localhost:4000';
+axios.defaults.withCredentials = true;
 // axios.defaults.headers = {'Access-Control-Allow-Origin': '*'}
 export default {
+    mounted() {
+        console.log("mounted")
+        axios.get('/')
+        .then(() => {
+            console.log("Requested \"/\"")
+        })
+        .catch(() => {
+            console.log("error!")
+        })
+    },
     name: 'ask-sam-container',
   data() {
       return {
@@ -37,6 +48,14 @@ export default {
   },
   methods: {
       handleSubmit() {
+        axios.get("/submitquestion")
+        .then(function() {
+            console.log("Success, Sent cookie");
+
+        })
+        .catch(function() {
+            console.log("Error, cookie not sent!");
+        })
         axios.post(`/submitquestion?question=${this.question}`, {
             question: this.question
         }, options)
@@ -52,6 +71,13 @@ export default {
         })
           console.log("Submit pressed")
           this.question = '';
+        axios.get("/submitquestion")
+        .then(function() {
+            console.log("Success, Sent cookie");
+        })
+        .catch(function() {
+            console.log("Error, cookie not sent!");
+        })
       },
       clearDatabase() {
           axios.delete('/cleardatabase'), {

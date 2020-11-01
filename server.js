@@ -4,7 +4,11 @@ const port = 4000;
 const router = express.Router();
 const mongoose = require("mongoose");
 const uri = "mongodb://localhost:27017/asksamdb";
+const cookieParser = require('cookie-parser');
+const cors = require('cors');
 let sessionCount = 0;
+let cookieData;
+let questionIDForClient;
 // let questionCount = 0;
 
 mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true });
@@ -45,11 +49,31 @@ connection.once("open", function() {
 });
 
 app.use("/", router);
+app.use(cookieParser())
+// app.use(cors({
+//   origin: [
+//     'http://localhost:8080',
+//     'https://localhost:8080',
+//     'http://localhost:8081',
+//     'https://localhost:8081',
+//   ],
+//   credentials: true,
+//   exposedHeaders: ['set-cookie']
+// }));
+
 
 
 app.get("/", function(req, res) {
   console.log("GET: \"/\"")
-  res.send("GET: You have reached the home page")
+  console.log('Cookies from Homepage: ', req.cookies)
+  if(req.cookies.questionID === undefined) {
+    res.cookie('questionID', ["homepage5", "homepage2"]).send('Cookie set, GET: Request received to homepage') //Sets questionID = questionCount
+  } else {
+    console.log("Homepage: Cookie already exists")
+    res.send("Homepage: Cookie already exists")
+  }
+  
+  // res.send("GET: Request received to homepage")
 })
 
 app.get('/needanswers', function(req, res) {
@@ -88,15 +112,13 @@ app.post('/answered', function(req, res) {
   // console.log(req);
 })
 
-router.route("/submitquestion").post(function(req, res) {
+app.post("/submitquestion", function(req, res) {
   console.log("POST received from: ", req.url)
-  res.send("Post Received")
-  // Question.countDocuments({}, function(response) {
-  //   console.log("Document count: ", response)
-  // })
   Question.estimatedDocumentCount()
   .then(function(questionCount) {
-    console.log("Document count is: ", questionCount)
+    // console.log("Document count is: ", questionCount)  
+    questionIDForClient = questionCount;
+    console.log("Updated questionIDForClient: ", questionIDForClient);
     Question.create({
       sessionID: sessionCount,
       questionID: questionCount,
@@ -108,10 +130,34 @@ router.route("/submitquestion").post(function(req, res) {
       console.log(response)
     })
   })
+  res.send("Post Received")
 
   console.log(req.query.question)
     sessionCount++;
 });
+
+app.get("/submitquestion", function(req, res) {
+  console.log("GET from SubmitQuestion: Req.cookies ", req.cookies)
+  cookieData = req.cookies;
+  console.log("Cookie value ", req.cookies.questionID)
+  if(cookieData.questionID === undefined) {
+    console.log("SubmitQuestion: Cookie doesn't exist")
+    res.cookie(`questionID${questionIDForClient}`, "Submit question cookie").send('Cookie set, GET: Request received to SubmitQuestion') //Sets questionID = questionCount
+  } else {
+    if(cookieData.questionID === questionIDForClient) {
+      console.log("Same cookie, no need to add another")
+      
+
+    } else {
+      console.log("Cookie value differs, creating new cookie now.")
+      res.cookie(`questionID${questionIDForClient}`, {}).send('Cookie set, GET: Request received to SubmitQuestion') //Sets questionID = questionCount
+    }
+    console.log("SQ: Cookie already exists")
+    console.log("SQ: questionIDForClient: ", questionIDForClient)
+    res.cookie('questionID', `${questionIDForClient}`).send('Cookie set, GET: Request received to SubmitQuestion') //Sets questionID = questionCount
+  }
+})
+
 
 app.delete('/cleardatabase', function(req, res) {
   console.log("Delete request received")

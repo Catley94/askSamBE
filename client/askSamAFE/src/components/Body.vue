@@ -62,24 +62,24 @@ export default {
               console.log("Error getting questions");
               console.log(err);
           })
-          console.log("Question: ", this.question)
+          console.log("Question: ", this.currentQuestion.question)
       },
       handleSubmit() {
         axios.post(`/answered?answer=${this.answer}&questionID=${this.currentQuestion.questionID}`, {
             question: this.currentQuestion,
             answer: this.answer
         }, options)
-        .then(function (response) {
+        .then(function(response) {
             // handle success
             console.log("success!")
             console.log(response);
         })
-        .catch(function (error) {
+        .catch(function(error) {
             // handle error
             console.log("error occured")
             console.log(error);
         })
-          console.log("Submit pressed")
+        this.getQuestions();
           this.answer = '';
       },
   }
