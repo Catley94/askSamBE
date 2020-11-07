@@ -67,7 +67,7 @@ app.get("/", function(req, res) {
   console.log("GET: \"/\"")
   console.log('Cookies from Homepage: ', req.cookies)
   if(req.cookies.questionID === undefined) {
-    res.cookie('questionID', ["homepage5", "homepage2"]).send('Cookie set, GET: Request received to homepage') //Sets questionID = questionCount
+    res.cookie('questionID', "Homepage Cookie").send('Cookie set, GET: Request received to homepage') //Sets questionID = questionCount
   } else {
     console.log("Homepage: Cookie already exists")
     res.send("Homepage: Cookie already exists")
@@ -150,11 +150,11 @@ app.get("/submitquestion", function(req, res) {
 
     } else {
       console.log("Cookie value differs, creating new cookie now.")
-      res.cookie(`questionID${questionIDForClient}`, {}).send('Cookie set, GET: Request received to SubmitQuestion') //Sets questionID = questionCount
+      res.cookie(`questionID${questionIDForClient}`, `${questionIDForClient}`).send('Cookie set, GET: Request received to SubmitQuestion') //Sets questionID = questionCount
     }
     console.log("SQ: Cookie already exists")
     console.log("SQ: questionIDForClient: ", questionIDForClient)
-    res.cookie('questionID', `${questionIDForClient}`).send('Cookie set, GET: Request received to SubmitQuestion') //Sets questionID = questionCount
+    res.cookie('questionID', `${questionIDForClient}` + 4).send('Cookie set, GET: Request received to SubmitQuestion') //Sets questionID = questionCount
   }
 })
 
