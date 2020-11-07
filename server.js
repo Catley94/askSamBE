@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 let sessionCount = 0;
 let cookieData;
-let questionIDForClient;
+let questionIDForClient = 0;
 // let questionCount = 0;
 
 mongoose.connect(uri, { useUnifiedTopology: true, useNewUrlParser: true });
@@ -64,10 +64,14 @@ app.use(cookieParser())
 
 
 app.get("/", function(req, res) {
+  console.log("############################################################")
+  console.log("#________________________GET FROM /________________________#")
+  console.log("############################################################")
   console.log("GET: \"/\"")
   console.log('Cookies from Homepage: ', req.cookies)
   if(req.cookies.questionID === undefined) {
-    res.cookie('questionID', "Homepage Cookie").send('Cookie set, GET: Request received to homepage') //Sets questionID = questionCount
+    res.cookie('questionID', "Homepage Cookie", { maxAge: 9000000000 }).send('Cookie set, GET: Request received to homepage') //Sets questionID = questionCount
+    console.log("Created cookie")
   } else {
     console.log("Homepage: Cookie already exists")
     res.send("Homepage: Cookie already exists")
@@ -86,8 +90,51 @@ app.get('/needanswers', function(req, res) {
     });
 })
 
+app.get('/answered', function (req, res) {
+  console.log("############################################################")
+  console.log("#________________________GET FROM /ANSWERED________________#")
+  console.log("############################################################")
+  let _count = 0;
+  console.log("/answered: req cookies", req.cookies)
+  // console.log("Type: ", req.cookies[`questionID${_count}`])
+  const _cookies = req.cookies;
+  // const _nonParsedCookie1 = req.cookies.questionID3;
+  // const _parsedCookies = cookieParser.JSONCookies(_cookies)
+  // const _parsedCookie1 = cookieParser.JSONCookie(_cookies.questionID3)
+  // console.log("ParsedCookies", _parsedCookies)
+  // console.log("ParsedCookie[1]", _parsedCookies[1])
+  // console.log("Parsed Cookie 1", _parsedCookie1)
+  // console.log("_NonParsedCookie1", cookieParser.JSONCookie(_nonParsedCookie1))
+  console.log("GET FROM ANSWERED: Count: ", `questionID${_count}`)
+  console.log("GET FROM ANSWERED: Count Contents: ", _cookies[`questionID${_count}`])
+  console.log("GET FROM ANSWERED: _cookies length", _cookies.length)
+  while(_cookies[`questionID${_count}`] !== undefined || _cookies[`questionID${_count+1}`] !== undefined) {
+    console.log("GET FROM ANSWERED: Each Cookie", _cookies[`questionID${_count}`])
+    _count++;
+  }
+  res.send(_cookies)
+  // for(let i = 0; i < 10; i++) {
+  //   console.log("hello")
+  //   console.log("Cookie from Cookies"+_cookies[i]);
+  // }
+  // _cookies.map((cookie, i) => {
+  //   // Question.find({questionID: req.query.questionID}, function(err, response) {
+  //   //   if(err) {
+  //   //     console.log("error finding in db");
+  //   //     console.log(err)
+  //   //   } else {
+  //   //     console.log("found!")
+  //   //     console.log(response)
+  //   //   }
+  //   // })
+  //   console.log(`Cookie${i}, ${cookie}`)
+  // })
+})
 
 app.post('/answered', function(req, res) {
+  console.log("############################################################")
+  console.log("#________________________POST FROM /ANSWERED_______________#")
+  console.log("############################################################")
   console.log("Question: ", req.query)
   console.log("Answer: ", req.query.answer);
   Question.find({questionID: req.query.questionID}, function(err, response) {
@@ -113,12 +160,15 @@ app.post('/answered', function(req, res) {
 })
 
 app.post("/submitquestion", function(req, res) {
+  console.log("############################################################")
+  console.log("#________________________POST FROM /SUBMITQUESTION_________#")
+  console.log("############################################################")
   console.log("POST received from: ", req.url)
   Question.estimatedDocumentCount()
   .then(function(questionCount) {
     // console.log("Document count is: ", questionCount)  
     questionIDForClient = questionCount;
-    console.log("Updated questionIDForClient: ", questionIDForClient);
+    console.log("POST FROM SQ: Updated questionIDForClient: ", questionIDForClient);
     Question.create({
       sessionID: sessionCount,
       questionID: questionCount,
@@ -126,36 +176,44 @@ app.post("/submitquestion", function(req, res) {
       answered: false,
       answer: ''
     }, function(err, response) {
-      console.log("Created and saved");
-      console.log(response)
+      console.log("POST FROM SQ: Created and saved");
+      console.log("POST FROM SQ: ", response)
     })
   })
   res.send("Post Received")
 
-  console.log(req.query.question)
+  console.log("POST FROM SQ: ", req.query.question)
     sessionCount++;
 });
 
 app.get("/submitquestion", function(req, res) {
-  console.log("GET from SubmitQuestion: Req.cookies ", req.cookies)
+  console.log("############################################################")
+  console.log("#________________________GET FROM /SUBMITQUESTION__________#")
+  console.log("############################################################")
+  console.log("GET FROM SQ: Req.cookies ", req.cookies)
   cookieData = req.cookies;
-  console.log("Cookie value ", req.cookies.questionID)
+  // console.log("GET FROM SQ: CookieData", cookieData)
+  // console.log("GET FROM SQ: Cookie value ", req.cookies.questionID+questionIDForClient)
   if(cookieData.questionID === undefined) {
-    console.log("SubmitQuestion: Cookie doesn't exist")
-    res.cookie(`questionID${questionIDForClient}`, "Submit question cookie").send('Cookie set, GET: Request received to SubmitQuestion') //Sets questionID = questionCount
+    console.group("GET FROM SQ: questionID === undefined");
+    console.log("GET FROM SQ: SubmitQuestion: Cookie doesn't exist");
+    console.groupEnd();
+    res.cookie(`questionID${questionIDForClient}`, "Submit question cookie", { maxAge: 9000000000 }) //Sets questionID = questionCount
   } else {
+    console.log("GET FROM SQ: questionID !== undefined")
     if(cookieData.questionID === questionIDForClient) {
-      console.log("Same cookie, no need to add another")
-      
-
+      console.log("GET FROM SQ: Same cookie, no need to add another")
     } else {
-      console.log("Cookie value differs, creating new cookie now.")
-      res.cookie(`questionID${questionIDForClient}`, `${questionIDForClient}`).send('Cookie set, GET: Request received to SubmitQuestion') //Sets questionID = questionCount
+      console.group("Cookie differs, creating now...")
+      console.log("GET FROM SQ: Cookie value differs, creating new cookie now.")
+      console.groupEnd();
+      res.cookie(`questionID${questionIDForClient}`, `${questionIDForClient}`, { maxAge: 9000000000 }) //Sets questionID = questionCount
     }
-    console.log("SQ: Cookie already exists")
-    console.log("SQ: questionIDForClient: ", questionIDForClient)
-    res.cookie('questionID', `${questionIDForClient}` + 4).send('Cookie set, GET: Request received to SubmitQuestion') //Sets questionID = questionCount
+    // console.log("GET FROM SQ: Cookie already exists")
+    // console.log("GET FROM SQ: questionIDForClient: ", questionIDForClient)
+    // res.cookie('questionID', `${questionIDForClient}` + 4) //Sets questionID = questionCount
   }
+  res.send('Cookie set, GET: Request received to SubmitQuestion')
 })
 
 

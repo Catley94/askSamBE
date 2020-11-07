@@ -8,6 +8,10 @@
         <form @submit.prevent="clearDatabase">
             <button>Clear Database</button>
         </form>
+
+        <ul>
+            <li>Question Number: Answer</li>
+        </ul>
         
     </div>
 </template>
@@ -32,6 +36,14 @@ export default {
         axios.get('/')
         .then(() => {
             console.log("Requested \"/\"")
+        })
+        .catch(() => {
+            console.log("error!")
+        })
+        axios.get('/answered')
+        .then((response) => {
+            console.log("Requested \"/answered\"")
+            console.log("Response: ", response)
         })
         .catch(() => {
             console.log("error!")
