@@ -60,6 +60,16 @@ export default {
   },
   methods: {
       handleSubmit() {
+
+        //   axios.get("/documentcount")
+        // .then(function() {
+        //     console.log("Success, Sent cookie");
+
+        // })
+        // .catch(function() {
+        //     console.log("Error, cookie not sent!");
+        // })
+        //GET
         axios.get("/submitquestion")
         .then(function() {
             console.log("Success, Sent cookie");
@@ -68,6 +78,8 @@ export default {
         .catch(function() {
             console.log("Error, cookie not sent!");
         })
+
+        //POST
         axios.post(`/submitquestion?question=${this.question}`, {
             question: this.question
         }, options)
@@ -83,13 +95,14 @@ export default {
         })
           console.log("Submit pressed")
           this.question = '';
-        axios.get("/submitquestion")
-        .then(function() {
-            console.log("Success, Sent cookie");
-        })
-        .catch(function() {
-            console.log("Error, cookie not sent!");
-        })
+        //GET
+        // axios.get("/submitquestion")
+        // .then(function() {
+        //     console.log("Success, Sent cookie");
+        // })
+        // .catch(function() {
+        //     console.log("Error, cookie not sent!");
+        // })
       },
       clearDatabase() {
           axios.delete('/cleardatabase'), {
