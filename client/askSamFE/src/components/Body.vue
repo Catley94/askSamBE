@@ -10,7 +10,7 @@
         </form>
 
         <ul>
-            <li>Question Number: Answer</li>
+            <li v-for="number in questionNumberList" :key="number">{{ number }}</li>
         </ul>
         
     </div>
@@ -43,18 +43,44 @@ export default {
         axios.get('/answered')
         .then((response) => {
             console.log("Requested \"/answered\"")
-            console.log("Response: ", response)
+            console.log("/answered response ", response)
+            console.group("Cookie Data Seperated")
+            response.data.map(cookie => {
+                console.log(cookie)
+                })
+            console.groupEnd()
+            console.log("Cookie Data", response.data.map(cookie => cookie))
+            this.questionNumberList = response.data.map(cookie => cookie)
         })
         .catch(() => {
             console.log("error!")
         })
     },
+    updated() {
+        // axios.get('/answered')
+        // .then((response) => {
+        //     console.log("Requested \"/answered\"")
+        //     console.log("/answered response ", response)
+        //     console.group("Cookie Data Seperated")
+        //     response.data.map(cookie => {
+        //         console.log(cookie)
+        //         })
+        //     console.groupEnd()
+        //     console.log("Cookie Data", response.data.map(cookie => cookie))
+        //     this.questionNumberList = response.data.map(cookie => cookie)
+        // })
+        // .catch(() => {
+        //     console.log("error!")
+        // })
+    },
     name: 'ask-sam-container',
   data() {
       return {
-          header: "Ask Sam",
-          question: ''
-
+        header: "Ask Sam",
+        question: '',
+        questionNumberList: [],
+        questionNumber: 0,
+        answer: ''
       }
       
   },
@@ -103,6 +129,21 @@ export default {
         // .catch(function() {
         //     console.log("Error, cookie not sent!");
         // })
+        axios.get('/answered')
+        .then((response) => {
+            console.log("Requested \"/answered\"")
+            console.log("/answered response ", response)
+            console.group("Cookie Data Seperated")
+            response.data.map(cookie => {
+                console.log(cookie)
+                })
+            console.groupEnd()
+            console.log("Cookie Data", response.data.map(cookie => cookie))
+            this.questionNumberList = response.data.map(cookie => cookie)
+        })
+        .catch(() => {
+            console.log("error!")
+        })
       },
       clearDatabase() {
           axios.delete('/cleardatabase'), {

@@ -94,41 +94,10 @@ app.get('/answered', function (req, res) {
   console.log("############################################################")
   console.log("#________________________GET FROM /ANSWERED________________#")
   console.log("############################################################")
-  let _count = 0;
-  console.log("/answered: req cookies", req.cookies)
-  // console.log("Type: ", req.cookies[`questionID${_count}`])
-  const _cookies = req.cookies;
-  // const _nonParsedCookie1 = req.cookies.questionID3;
-  // const _parsedCookies = cookieParser.JSONCookies(_cookies)
-  // const _parsedCookie1 = cookieParser.JSONCookie(_cookies.questionID3)
-  // console.log("ParsedCookies", _parsedCookies)
-  // console.log("ParsedCookie[1]", _parsedCookies[1])
-  // console.log("Parsed Cookie 1", _parsedCookie1)
-  // console.log("_NonParsedCookie1", cookieParser.JSONCookie(_nonParsedCookie1))
-  console.log("GET FROM ANSWERED: Count: ", `questionID${_count}`)
-  console.log("GET FROM ANSWERED: Count Contents: ", _cookies[`questionID${_count}`])
-  console.log("GET FROM ANSWERED: _cookies length", _cookies.length)
-  while(_cookies[`questionID${_count}`] !== undefined || _cookies[`questionID${_count+1}`] !== undefined) {
-    console.log("GET FROM ANSWERED: Each Cookie", _cookies[`questionID${_count}`])
-    _count++;
-  }
-  res.send(_cookies)
-  // for(let i = 0; i < 10; i++) {
-  //   console.log("hello")
-  //   console.log("Cookie from Cookies"+_cookies[i]);
-  // }
-  // _cookies.map((cookie, i) => {
-  //   // Question.find({questionID: req.query.questionID}, function(err, response) {
-  //   //   if(err) {
-  //   //     console.log("error finding in db");
-  //   //     console.log(err)
-  //   //   } else {
-  //   //     console.log("found!")
-  //   //     console.log(response)
-  //   //   }
-  //   // })
-  //   console.log(`Cookie${i}, ${cookie}`)
-  // })
+  const cookieValues = Object.keys(req.cookies).filter(key => key.startsWith("questionID")).map(key => req.cookies[key])
+  console.log("GET FROM ANSWERED: cookieValues: ", cookieValues)
+  res.send(cookieValues)
+  // cookieValues.map(cookie => console.log("cookieValue: ", cookie))
 })
 
 app.post('/answered', function(req, res) {
@@ -170,7 +139,6 @@ app.post("/submitquestion", function(req, res) {
   Question.estimatedDocumentCount()
   .then(function(questionCount) {
     console.log("POST FROM SQ: Document count is: ", questionCount)  
-    // const questionCountMinusOne = questionCount ;
     questionIDForClient = questionCount;
     
     Question.create({
@@ -184,10 +152,6 @@ app.post("/submitquestion", function(req, res) {
       console.log("POST FROM SQ: ", response)
     })
   })
-  // res.on('finish', function(res) {
-  //   console.log("POST FROM SQ: Redirecting to /submitquestion")
-  //  res.redirect('/submitquestion')
-  // });
   res.send("Post Received")
 
 
